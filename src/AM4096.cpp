@@ -65,7 +65,7 @@ int AM4096::init()
 {
     if (_initialised)
         return 0;
-    wait_ms(30); // POWER-UP
+    delay(30); // POWER-UP
     int attempts = 0;
     AM_LOG("Connection attempt ...\r\n");
     while (readReg(AM4096_REGISTER_CONFIG_DATA_ADDR, &_configuration.data[0]))
@@ -104,7 +104,7 @@ int AM4096::readReg(uint8_t addr, uint16_t * reg)
     int status = 0;
     status += _i2c->write((int)_hw_addr<<1, (const char*)&addr, 1, true);
     if(addr <= 0x1F)
-        wait_us(20); // EEPROM CLK stretching
+        delayMicroseconds(20); // EEPROM CLK stretching
     status += _i2c->read((int)_hw_addr<<1, buffer,2,false);
     *reg = (uint16_t)((buffer[0] << 8) & 0xff00) | (uint16_t)buffer[1];
     return status; 
@@ -124,7 +124,7 @@ int AM4096::writeReg(uint8_t addr, uint16_t * reg)
     buffer[2] = *reg & 0xFF;
     int status = _i2c->write((int)_hw_addr<<1, (const char *)buffer, 3, false); // wait ~ 20ms after writing to EEPROM 
     if(addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN))
-        wait_ms(AM4096_EEPROM_WRITE_TIME+2);
+        delay(AM4096_EEPROM_WRITE_TIME+2);
     return status;
 } 
 
@@ -139,7 +139,7 @@ int AM4096::findAM4096Device()
         if(found_flag = readReg(AM4096_REGISTER_CONFIG_DATA_ADDR, &_configuration.data[0]))
         {
             _hw_addr++;
-            wait_ms(10);
+            delay(10);
         }
     }
     if(found_flag != AM4096_ERROR_NONE)
