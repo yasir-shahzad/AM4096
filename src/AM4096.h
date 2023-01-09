@@ -128,7 +128,7 @@ class AM4096
          * @param hw_addr device address 
          * @return 
          */
-        AM4096(I2C * i2c_instance, uint8_t hw_addr);
+        AM4096(TwoWire * i2c_instance, uint8_t hw_addr);
 
         /**
          * @brief Initialise device.
@@ -216,7 +216,7 @@ class AM4096
         int writeReg(uint8_t addr, uint16_t * reg); 
     
     private:
-        I2C * _i2c;
+        TwoWire * _i2c;
         uint8_t _hw_addr;
         uint32_t _device_id;
         bool _initialised;
