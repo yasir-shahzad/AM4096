@@ -13,7 +13,6 @@
     #define AM_LOG(f_ , ...) do {} while (0)
 #endif
 
-
 #if AM4096_LOGS
 static const char CONFIG_STR[] = "*******CONFIG*******\r\n"
                                  "Addr    : 0x%03X\r\n"
@@ -59,6 +58,8 @@ AM4096::AM4096(TwoWire *i2c_instance, uint8_t hw_addr)
 {
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)
         _configuration.data[i]=0;
+    for(int i=0; i<AM4096_OUTPUT_DATA_LEN; i++)
+        _output_data.data[i]=0;
 }
 
 int AM4096::init()
@@ -78,7 +79,7 @@ int AM4096::init()
             return 1;
         }
     }
-    AM_LOG("Connection succesfull ...\r\n");
+    AM_LOG("Connection successful ...\r\n");
     AM_LOG("Device addr: 0x%02X\r\n", _configuration.fields.Addr);
     
     
@@ -87,7 +88,7 @@ int AM4096::init()
         readReg(AM4096_EEPROM_DEVICE_ID_ADDR+i, id_buffer+i);
     _device_id = (uint32_t)(id_buffer[0] << 16) | id_buffer[1];
     
-    AM_LOG("Device id: 0x%08X\r\n");
+    AM_LOG("Device id: 0x%08X\r\n", _device_id);
 
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)
         readReg(AM4096_EEPROM_CONFIG_DATA_ADDR+i, &_configuration.data[i]);
@@ -98,35 +99,45 @@ int AM4096::init()
     return 0;
 }
 
-int AM4096::readReg(uint8_t addr, uint16_t * reg)
-{
+
+int AM4096::readReg(uint8_t addr, uint16_t* reg) {
     char buffer[2];
     int status = 0;
-    status += _i2c->write((int)_hw_addr<<1, (const char*)&addr, 1, true);
+    status += _i2cPort->beginTransmission((int)_hw_addr<<1);
+    status += _i2cPort->write(addr);
     if(addr <= 0x1F)
         delayMicroseconds(20); // EEPROM CLK stretching
-    status += _i2c->read((int)_hw_addr<<1, buffer,2,false);
+    status += _i2cPort->endTransmission(false);
+    if (status != 0)
+        return status;
+    status += _i2cPort->requestFrom((int)_hw_addr<<1, (uint8_t)2, (uint8_t)true);
+    buffer[0] = _i2cPort->read();
+    buffer[1] = _i2cPort->read();
     *reg = (uint16_t)((buffer[0] << 8) & 0xff00) | (uint16_t)buffer[1];
-    return status; 
+    return status;
 }
 
-int AM4096::writeReg(uint8_t addr, uint16_t * reg)
-{
+int AM4096::writeReg(uint8_t addr, uint16_t* reg) {
     bool flag = !((addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN)) ||
         ((addr >=AM4096_REGISTER_CONFIG_DATA_ADDR) && 
         (addr < (AM4096_REGISTER_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN) )));
     if(flag)
         return 1;
-    
+
     char buffer[3];
-    buffer[0] = addr; 
-    buffer[1] = (*reg >> 8) & 0xFF; 
+    buffer[0] = addr;
+    buffer[1] = (*reg >> 8) & 0xFF;
     buffer[2] = *reg & 0xFF;
-    int status = _i2c->write((int)_hw_addr<<1, (const char *)buffer, 3, false); // wait ~ 20ms after writing to EEPROM 
+    int status = _i2cPort->beginTransmission((int)_hw_addr<<1);
+    status += _i2cPort->write(buffer, 3);
+    status += _i2cPort->endTransmission(false);
+    if (status != 0)
+        return status;
     if(addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN))
         delay(AM4096_EEPROM_WRITE_TIME+2);
     return status;
-} 
+}
+
 
 int AM4096::findAM4096Device()
 {
@@ -136,21 +147,21 @@ int AM4096::findAM4096Device()
 
     while(found_flag && (_hw_addr <= AM4096_ADDR_LAST))
     {
-        if(found_flag = readReg(AM4096_REGISTER_CONFIG_DATA_ADDR, &_configuration.data[0]))
+        if(found_flag = readReg(AM4096_REGISTER_CONFIG_DATA_ADDR, &_configuration.data[0]) == AM4096_ERROR_NONE)
         {
             _hw_addr++;
             delay(10);
         }
     }
-    if(found_flag != AM4096_ERROR_NONE)
+    if(!found_flag)
     {
         _hw_addr = last_hw_addr;
-        AM_LOG("No devices found!\r\n");
-        return 1;
+        AM_LOG("Device with addr: 0x%02X found!\r\n", _hw_addr);
+        return 0;
     }
 
-    AM_LOG("Device with addr: 0x%02X found!\r\n", _hw_addr);
-    return 0;
+    AM_LOG("No devices found!\r\n");
+    return 1;
 }
 
 uint32_t AM4096::getDeviceId()
