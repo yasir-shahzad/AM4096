@@ -1,6 +1,6 @@
 /** @file AM4096.h
  * AM4096 interface library for mbed framework
- * Copyright (C)  Yasir Shahzad
+ * Copyright (C)  Yasir Shahzad, 2022
  *
  * Distributed under the MIT license.
  * For full terms see the file LICENSE.md.
@@ -8,7 +8,11 @@
 #ifndef __AM4096_H__
 #define __AM4096_H__
 
-#include <mbed.h>
+#include <Arduino.h>
+#include <assert.h>
+#include "SoftWire.h"
+
+#define AM4096_LOGS 1
 
 #define AM4096_MEMORY_WORD_LEN              2   ///< AM4096 memory word length in Bytes
 #define AM4096_EEPROM_CONFIG_DATA_ADDR      0   ///< address of first word of AM4096 configuration in EEPROM  
@@ -128,7 +132,7 @@ class AM4096
          * @param hw_addr device address 
          * @return 
          */
-        AM4096(TwoWire * i2c_instance, uint8_t hw_addr);
+        AM4096(SoftWire* i2c_instance, uint8_t hw_addr);
 
         /**
          * @brief Initialise device.
@@ -216,7 +220,7 @@ class AM4096
         int writeReg(uint8_t addr, uint16_t * reg); 
     
     private:
-        TwoWire * _i2c;
+        SoftWire *_i2c;
         uint8_t _hw_addr;
         uint32_t _device_id;
         bool _initialised;

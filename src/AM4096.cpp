@@ -53,13 +53,11 @@ static const char CONFIG_STR[] = "";
 static const char OUTPUT_STR[] = "";
 #endif
 
-AM4096::AM4096(TwoWire *i2c_instance, uint8_t hw_addr)
+AM4096::AM4096(SoftWire* i2c_instance, uint8_t hw_addr)
     : _i2c(i2c_instance), _hw_addr(hw_addr), _device_id(0), _initialised(false)
 {
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)
         _configuration.data[i]=0;
-    for(int i=0; i<AM4096_OUTPUT_DATA_LEN; i++)
-        _output_data.data[i]=0;
 }
 
 int AM4096::init()
@@ -79,7 +77,7 @@ int AM4096::init()
             return 1;
         }
     }
-    AM_LOG("Connection successful ...\r\n");
+    AM_LOG("Connection succesfull ...\r\n");
     AM_LOG("Device addr: 0x%02X\r\n", _configuration.fields.Addr);
     
     
@@ -88,7 +86,7 @@ int AM4096::init()
         readReg(AM4096_EEPROM_DEVICE_ID_ADDR+i, id_buffer+i);
     _device_id = (uint32_t)(id_buffer[0] << 16) | id_buffer[1];
     
-    AM_LOG("Device id: 0x%08X\r\n", _device_id);
+    AM_LOG("Device id: 0x%08X\r\n");
 
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)
         readReg(AM4096_EEPROM_CONFIG_DATA_ADDR+i, &_configuration.data[i]);
@@ -99,45 +97,50 @@ int AM4096::init()
     return 0;
 }
 
-
-int AM4096::readReg(uint8_t addr, uint16_t* reg) {
+int AM4096::readReg(uint8_t reg_addr, uint16_t * data)
+{
     char buffer[2];
-    int status = 0;
-    status += _i2cPort->beginTransmission((int)_hw_addr<<1);
-    status += _i2cPort->write(addr);
-    if(addr <= 0x1F)
+    _i2c->beginTransmission((uint8_t)_hw_addr << 1);
+    _i2c->write((int)reg_addr);
+    if (reg_addr <= 0x1F)
         delayMicroseconds(20); // EEPROM CLK stretching
-    status += _i2cPort->endTransmission(false);
-    if (status != 0)
-        return status;
-    status += _i2cPort->requestFrom((int)_hw_addr<<1, (uint8_t)2, (uint8_t)true);
-    buffer[0] = _i2cPort->read();
-    buffer[1] = _i2cPort->read();
-    *reg = (uint16_t)((buffer[0] << 8) & 0xff00) | (uint16_t)buffer[1];
-    return status;
+    if (_i2c->endTransmission(false) != 0)
+    {
+        _i2c->endTransmission(true);
+        return 0;
+    }
+    _i2c->requestFrom((uint8_t)_hw_addr << 1, (uint8_t)2, (uint8_t) true);
+    buffer[0] = _i2c->read();
+    buffer[1] = _i2c->read();
+    *data = (uint16_t)((buffer[0] << 8) & 0xff00) | (uint16_t)buffer[1];
+    return 1;
 }
 
-int AM4096::writeReg(uint8_t addr, uint16_t* reg) {
-    bool flag = !((addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN)) ||
-        ((addr >=AM4096_REGISTER_CONFIG_DATA_ADDR) && 
-        (addr < (AM4096_REGISTER_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN) )));
+int AM4096::writeReg(uint8_t reg_addr, uint16_t * data)
+{
+    bool flag = !((reg_addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN)) ||
+        ((reg_addr >=AM4096_REGISTER_CONFIG_DATA_ADDR) && 
+        (reg_addr < (AM4096_REGISTER_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN) )));
     if(flag)
         return 1;
 
     char buffer[3];
-    buffer[0] = addr;
-    buffer[1] = (*reg >> 8) & 0xFF;
-    buffer[2] = *reg & 0xFF;
-    int status = _i2cPort->beginTransmission((int)_hw_addr<<1);
-    status += _i2cPort->write(buffer, 3);
-    status += _i2cPort->endTransmission(false);
-    if (status != 0)
-        return status;
-    if(addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN))
-        delay(AM4096_EEPROM_WRITE_TIME+2);
-    return status;
-}
+    buffer[0] = reg_addr;
+    buffer[1] = (*data >> 8) & 0xFF;
+    buffer[2] = *data & 0xFF;
+    _i2c->beginTransmission((int)_hw_addr << 1);
+    _i2c->write(buffer, 3);
+    if (_i2c->endTransmission(true) != 0)
+    {
+        return 0;
+    }
 
+    // int status = _i2c->write((int)_hw_addr<<1, (const char *)buffer, 3, false); // wait ~ 20ms after writing to
+    // EEPROM
+    if (reg_addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN))
+        delay(AM4096_EEPROM_WRITE_TIME + 2);
+    return 1;
+} 
 
 int AM4096::findAM4096Device()
 {
@@ -191,7 +194,7 @@ int AM4096::setNewHwAddr(uint8_t hw_addr)
 
 void AM4096::getConfiguration(AM4096_config_data * conf_ptr)
 {
-    MBED_ASSERT(conf_ptr);
+    assert(conf_ptr != NULL);
     *conf_ptr = _configuration;
 }
 
@@ -244,7 +247,7 @@ void AM4096::printAM4096OutputData(const AM4096_output_data * out_ptr)
 
 int AM4096::updateConfiguration(const AM4096_config_data * conf_ptr, bool permament)
 {
-    MBED_ASSERT(conf_ptr);
+    assert(conf_ptr != NULL);
 
     if(conf_ptr->fields.Addr != _configuration.fields.Addr)
         return 1;
@@ -287,7 +290,7 @@ int AM4096::updateConfiguration(const AM4096_config_data * conf_ptr, bool permam
 
 int AM4096::readOutputDataRegisters(AM4096_output_data * out_ptr)
 {
-    MBED_ASSERT(out_ptr);
+    assert(out_ptr != NULL);
     int status = 0;
     for(int i = 0; i < AM4096_REGISTER_MEAS_DATA_LEN; i++)
         status = readReg(AM4096_REGISTER_MEAS_DATA_ADDR + i, &out_ptr->data[i]);
