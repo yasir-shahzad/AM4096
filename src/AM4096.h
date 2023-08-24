@@ -13,7 +13,7 @@
 #include <Arduino.h>
 #include <assert.h>
 #include <Wire.h>
-#include "printf/LibPrintf.h"
+#include <LibPrintf.h>
 
 #define AM4096_LOGS 1
 
@@ -135,7 +135,7 @@ class AM4096
          * @param address device address 
          * @return 
          */
-        AM4096(TwoWire &i2c_bus = Wire, uint8_t address);
+        AM4096(uint8_t address, TwoWire &i2c_bus = Wire);
 
         /**
          * @brief Initialise device.

@@ -13,8 +13,9 @@ AM4096 encoder(0x5A);
 AM4096_output_data outputData;
 
 void setup() {
-  // Initialize the communication with the encoder
-  encoder.init();
+    Serial.begin(9600);
+    // Initialize the communication with the encoder
+    encoder.init();
 }
 
 void loop() {

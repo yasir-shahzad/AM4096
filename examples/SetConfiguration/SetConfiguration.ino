@@ -22,6 +22,7 @@ AM4096_config_data config = {
 };
 
 void setup() {
+    Serial.begin(9600);
     // Initialize the communication with the encoder
     encoder.init();
 

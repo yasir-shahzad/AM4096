@@ -55,7 +55,7 @@ static const char CONFIG_STR[] = "";
 static const char OUTPUT_STR[] = "";
 #endif
 
-AM4096::AM4096(TwoWire &i2c_bus, uint8_t address)
+AM4096::AM4096(uint8_t address, TwoWire &i2c_bus)
     : i2cPort(&i2c_bus), _hw_addr(address), _device_id(0), _initialised(false)
 {
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)

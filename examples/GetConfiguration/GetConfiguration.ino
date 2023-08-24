@@ -11,6 +11,7 @@ AM4096 encoder(0x5A); // I2C bus, device address
 AM4096_config_data currentConfiguration;
 
 void setup() {
+    Serial.begin(9600);
     // Initialize communication with the encoder
     encoder.init();
 
