@@ -102,19 +102,19 @@ int AM4096::init()
 int AM4096::readReg(uint8_t reg_addr, uint16_t * data)
 {
     char buffer[2];
-    i2cPort->beginTransmission((uint8_t)_hw_addr << 1);
+    i2cPort->beginTransmission(_hw_addr);
     i2cPort->write((int)reg_addr);
     if (reg_addr <= 0x1F)
         delayMicroseconds(20); // EEPROM CLK stretching
     if (i2cPort->endTransmission(false) != 0)
     {
         i2cPort->endTransmission(true);
+        AM_LOG("Error while reading register ...\r\n");
         return 0;
     }
     
     // Explicitly cast the arguments to uint8_t to resolve ambiguity
-    i2cPort->requestFrom(static_cast<uint8_t>((uint8_t)_hw_addr << 1),
-                      static_cast<uint8_t>(2), static_cast<uint8_t>(true));
+    i2cPort->requestFrom((uint8_t)_hw_addr,(uint8_t)2, (uint8_t)true);
     
     buffer[0] = i2cPort->read();
     buffer[1] = i2cPort->read();
@@ -134,7 +134,7 @@ int AM4096::writeReg(uint8_t reg_addr, uint16_t * data)
     buffer[0] = reg_addr;
     buffer[1] = (*data >> 8) & 0xFF;
     buffer[2] = *data & 0xFF;
-    i2cPort->beginTransmission((int)_hw_addr << 1);
+    i2cPort->beginTransmission((int)_hw_addr);
     i2cPort->write(buffer, 3);
     if (i2cPort->endTransmission(true) != 0)
     {

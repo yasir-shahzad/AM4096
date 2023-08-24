@@ -12,6 +12,8 @@ AM4096_config_data currentConfiguration;
 
 void setup() {
     Serial.begin(9600);
+    Serial.println("Am4096 GetConfiguration Example"); 
+    Wire.begin();
     // Initialize communication with the encoder
     encoder.init();
 
