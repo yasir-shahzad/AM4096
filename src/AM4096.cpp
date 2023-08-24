@@ -55,8 +55,8 @@ static const char CONFIG_STR[] = "";
 static const char OUTPUT_STR[] = "";
 #endif
 
-AM4096::AM4096(TwoWire &i2c_instance, uint8_t hw_addr)
-    : i2cPort(&i2c_instance), _hw_addr(hw_addr), _device_id(0), _initialised(false)
+AM4096::AM4096(TwoWire &i2c_bus, uint8_t address)
+    : i2cPort(&i2c_bus), _hw_addr(address), _device_id(0), _initialised(false)
 {
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)
         _configuration.data[i]=0;
@@ -178,14 +178,14 @@ uint32_t AM4096::getDeviceId()
     return _device_id;
 }
 
-int AM4096::setNewHwAddr(uint8_t hw_addr)
+int AM4096::setNewHwAddr(uint8_t address)
 {
-    if(hw_addr > 0x7F && _initialised)
+    if(address > 0x7F && _initialised)
     {
         AM_LOG("Can't set new addres!\r\n");
         return 1;
     }
-    _configuration.fields.Addr = hw_addr;
+    _configuration.fields.Addr = address;
     int result = writeReg(AM4096_EEPROM_CONFIG_DATA_ADDR,&_configuration.data[0]);
     if(result)
     {
@@ -193,8 +193,8 @@ int AM4096::setNewHwAddr(uint8_t hw_addr)
         _configuration.fields.Addr = _hw_addr;
         return 1; 
     }
-    _hw_addr = hw_addr;
-    AM_LOG("New addr 0x%02X set!\r\n", hw_addr);
+    _hw_addr = address;
+    AM_LOG("New addr 0x%02X set!\r\n", address);
     return 0;
 }
 

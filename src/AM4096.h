@@ -131,11 +131,11 @@ class AM4096
     public:
         /**
          * @brief Create AM4096 interface.
-         * @param i2c_instance pointer to I2C instance
-         * @param hw_addr device address 
+         * @param i2c_bus pointer to I2C instance
+         * @param address device address 
          * @return 
          */
-        AM4096(TwoWire &i2c_instance = Wire, uint8_t hw_addr);
+        AM4096(TwoWire &i2c_bus = Wire, uint8_t address);
 
         /**
          * @brief Initialise device.
@@ -164,10 +164,10 @@ class AM4096
         
         /**
          * @brief Set new device address.
-         * @param hw_addr new address   
+         * @param address new address   
          * @return AM4096_ERROR_NONE if success, non zero value on failure
          */
-        int setNewHwAddr(uint8_t hw_addr);
+        int setNewHwAddr(uint8_t address);
         
         /**
          * @brief Get current configuration.

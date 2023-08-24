@@ -1,0 +1,24 @@
+# Keywords for SoftI2C Arduino Library
+
+SoftI2C           KEYWORD1
+SoftI2C.h         INCLUDE
+
+# Methods
+begin             KEYWORD2
+end               KEYWORD2
+beginTransmission KEYWORD2
+endTransmission   KEYWORD2
+setPinHigh        KEYWORD2
+setPinLow         KEYWORD2
+i2cInit           KEYWORD2
+i2cStart          KEYWORD2
+i2cStartWait      KEYWORD2
+i2cRepStart       KEYWORD2
+i2cStop           KEYWORD2
+i2cWrite          KEYWORD2
+i2cRead           KEYWORD2
+requestFrom       KEYWORD2
+available         KEYWORD2
+read              KEYWORD2
+peek              KEYWORD2
+flush             KEYWORD2
