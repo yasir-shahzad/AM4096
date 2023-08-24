@@ -1,10 +1,12 @@
-/** @file AM4096.cpp
- * AM4096 interface library for mbed framework
- * Copyright (C)  Yasir Shahzad
+/**
+ * @file AM4096.cpp
+ * @brief AM4096 Arduino interface library.
  *
- * Distributed under the MIT license.
- * For full terms see the file LICENSE.md.
+ * This file contains the AM4096 interface library for Arduino.
+ * (c) Yasir Shahzad. Distributed under the MIT license.
+ * For full terms, please refer to the LICENSE.md file.
  */
+
 #include "AM4096.h"
 
 #if AM4096_LOGS
@@ -35,7 +37,7 @@ static const char CONFIG_STR[] = "*******CONFIG*******\r\n"
                                  "SSIcfg  : 0x%03X\r\n"
                                  "Dac     : 0x%03X\r\n"
                                  "Dact    : 0x%03X\r\n"
-                                 "*******************\r\n";
+                              "*******************\r\n";
 
 static const char OUTPUT_STR[] = "*******OUTPUT*******\r\n"
                                  "Rpos    : 0x%03X\r\n"
@@ -53,8 +55,8 @@ static const char CONFIG_STR[] = "";
 static const char OUTPUT_STR[] = "";
 #endif
 
-AM4096::AM4096(SoftWire* i2c_instance, uint8_t hw_addr)
-    : _i2c(i2c_instance), _hw_addr(hw_addr), _device_id(0), _initialised(false)
+AM4096::AM4096(TwoWire &i2c_instance, uint8_t hw_addr)
+    : i2cPort(&i2c_instance), _hw_addr(hw_addr), _device_id(0), _initialised(false)
 {
     for(int i=0; i<AM4096_CONFIG_DATA_LEN; i++)
         _configuration.data[i]=0;
@@ -100,18 +102,22 @@ int AM4096::init()
 int AM4096::readReg(uint8_t reg_addr, uint16_t * data)
 {
     char buffer[2];
-    _i2c->beginTransmission((uint8_t)_hw_addr << 1);
-    _i2c->write((int)reg_addr);
+    i2cPort->beginTransmission((uint8_t)_hw_addr << 1);
+    i2cPort->write((int)reg_addr);
     if (reg_addr <= 0x1F)
         delayMicroseconds(20); // EEPROM CLK stretching
-    if (_i2c->endTransmission(false) != 0)
+    if (i2cPort->endTransmission(false) != 0)
     {
-        _i2c->endTransmission(true);
+        i2cPort->endTransmission(true);
         return 0;
     }
-    _i2c->requestFrom((uint8_t)_hw_addr << 1, (uint8_t)2, (uint8_t) true);
-    buffer[0] = _i2c->read();
-    buffer[1] = _i2c->read();
+    
+    // Explicitly cast the arguments to uint8_t to resolve ambiguity
+    i2cPort->requestFrom(static_cast<uint8_t>((uint8_t)_hw_addr << 1),
+                      static_cast<uint8_t>(2), static_cast<uint8_t>(true));
+    
+    buffer[0] = i2cPort->read();
+    buffer[1] = i2cPort->read();
     *data = (uint16_t)((buffer[0] << 8) & 0xff00) | (uint16_t)buffer[1];
     return 1;
 }
@@ -128,14 +134,14 @@ int AM4096::writeReg(uint8_t reg_addr, uint16_t * data)
     buffer[0] = reg_addr;
     buffer[1] = (*data >> 8) & 0xFF;
     buffer[2] = *data & 0xFF;
-    _i2c->beginTransmission((int)_hw_addr << 1);
-    _i2c->write(buffer, 3);
-    if (_i2c->endTransmission(true) != 0)
+    i2cPort->beginTransmission((int)_hw_addr << 1);
+    i2cPort->write(buffer, 3);
+    if (i2cPort->endTransmission(true) != 0)
     {
         return 0;
     }
 
-    // int status = _i2c->write((int)_hw_addr<<1, (const char *)buffer, 3, false); // wait ~ 20ms after writing to
+    // int status = i2cPort->write((int)_hw_addr<<1, (const char *)buffer, 3, false); // wait ~ 20ms after writing to
     // EEPROM
     if (reg_addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN))
         delay(AM4096_EEPROM_WRITE_TIME + 2);
