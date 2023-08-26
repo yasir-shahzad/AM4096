@@ -3,37 +3,40 @@
  * @brief Example of using the AM4096 encoder to read configuration.
  */
 #include <Wire.h>
-#include <AM4096.h> // Include the header file
+#include <AM4096.h>
 
 // Constants for configuration settings
-const uint16_t RESOLUTION_12BIT = 1;
-const uint16_t INDEX_POLARITY_ACTIVE_LOW = 1;
+const uint16_t DEVICE_ADDRESS = 0x5A;
 
 // Create an instance of the AM4096 encoder class
-AM4096 encoder(0x5A); // I2C bus, device address
+AM4096 encoder(DEVICE_ADDRESS); // I2C bus, device address
 
-// Configuration data structure with initial settings
-AM4096_config_data config = {
-    .fields = {
-        .Addr = RESOLUTION_12BIT,
-        .Reg35 = INDEX_POLARITY_ACTIVE_LOW,
-        .SSIcfg = 0x0000
-    }
-};
+// Creating a configuration data instance for AM4096
+AM4096_config_data config;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
-    Serial.println("Am4096 SetConfiguration Example");
+    Serial.println(F("Am4096 SetConfiguration Example"));
     Wire.begin();
     // Initialize the communication with the encoder
     encoder.init();
 
+    config.fields.Reg35   = 0x01; // Set Regulator voltage bit
+    config.fields.Slowint = 0x01; // Set Interpolator delay bit
+    config.fields.Abridis = 0x01; // Set Enabling A B Ri outputs bit
+    config.fields.Res     = 0x03; // Set Interpolation factor rate
+    config.fields.Sth     = 0x07; // Set Tacho measuring range
+    config.fields.SSIcfg  = 0x03; // Set SSI settings
+    config.fields.Dac     = 0x03; // Set Linear voltage period selection
+    config.fields.Dact    = 0x01; // Set Select the output on Vout/Tout pin bit
+
     // Update the configuration
     bool configurationUpdated = encoder.updateConfiguration(&config, true);
     if (configurationUpdated) {
-        Serial.println("Configuration updated");
+        Serial.println(F("Configuration updated"));
     } else {
-        Serial.println("Error while updating configuration");
+        Serial.println(F("Error while updating configuration"));
     }
 }
 

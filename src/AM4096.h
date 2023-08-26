@@ -15,7 +15,7 @@
 #include <Wire.h>
 #include <LibPrintf.h>
 
-#define AM4096_LOGS 1
+#define AM4096_LOGS true
 
 #define AM4096_MEMORY_WORD_LEN              2   ///< AM4096 memory word length in Bytes
 #define AM4096_EEPROM_CONFIG_DATA_ADDR      0   ///< address of first word of AM4096 configuration in EEPROM  

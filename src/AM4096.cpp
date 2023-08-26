@@ -17,38 +17,38 @@
 
 #if AM4096_LOGS
 static const char CONFIG_STR[] = "*******CONFIG*******\r\n"
-                                 "Addr    : 0x%03X\r\n"
-                                 "Reg35   : 0x%03X\r\n"
-                                 "Pdie    : 0x%03X\r\n"
-                                 "Pdtr    : 0x%03X\r\n"
-                                 "Slowint : 0x%03X\r\n"
-                                 "AGCdis  : 0x%03X\r\n"
-                                 "Pdint   : 0x%03X\r\n"
-                                 "Zin     : 0x%03X\r\n"
-                                 "Sign    : 0x%03X\r\n"
-                                 "Bufsel  : 0x%03X\r\n"
-                                 "Abridis : 0x%03X\r\n"
-                                 "Hist    : 0x%03X\r\n"
-                                 "Daa     : 0x%03X\r\n"
-                                 "Nfil    : 0x%03X\r\n"
-                                 "Res     : 0x%03X\r\n"
-                                 "UVW     : 0x%03X\r\n"
-                                 "Sth     : 0x%03X\r\n"
-                                 "SSIcfg  : 0x%03X\r\n"
-                                 "Dac     : 0x%03X\r\n"
-                                 "Dact    : 0x%03X\r\n"
+                                 "Addr    : 0x%02X\r\n"
+                                 "Reg35   : 0x%02X\r\n"
+                                 "Pdie    : 0x%02X\r\n"
+                                 "Pdtr    : 0x%02X\r\n"
+                                 "Slowint : 0x%02X\r\n"
+                                 "AGCdis  : 0x%02X\r\n"
+                                 "Pdint   : 0x%02X\r\n"
+                                 "Zin     : 0x%02X\r\n"
+                                 "Sign    : 0x%02X\r\n"
+                                 "Bufsel  : 0x%02X\r\n"
+                                 "Abridis : 0x%02X\r\n"
+                                 "Hist    : 0x%02X\r\n"
+                                 "Daa     : 0x%02X\r\n"
+                                 "Nfil    : 0x%02X\r\n"
+                                 "Res     : 0x%02X\r\n"
+                                 "UVW     : 0x%02X\r\n"
+                                 "Sth     : 0x%02X\r\n"
+                                 "SSIcfg  : 0x%02X\r\n"
+                                 "Dac     : 0x%02X\r\n"
+                                 "Dact    : 0x%02X\r\n"
                               "*******************\r\n";
 
 static const char OUTPUT_STR[] = "*******OUTPUT*******\r\n"
-                                 "Rpos    : 0x%03X\r\n"
-                                 "SRCH    : 0x%03X\r\n"
-                                 "Apos    : 0x%03X\r\n"
-                                 "SRCH    : 0x%03X\r\n"
-                                 "Wel     : 0x%03X\r\n"
-                                 "Weh     : 0x%03X\r\n"
-                                 "Tho     : 0x%03X\r\n"
-                                 "Thof    : 0x%03X\r\n"
-                                 "AGCgain : 0x%03X\r\n"
+                                 "Rpos    : 0x%02X\r\n"
+                                 "SRCH    : 0x%02X\r\n"
+                                 "Apos    : 0x%02X\r\n"
+                                 "SRCH    : 0x%02X\r\n"
+                                 "Wel     : 0x%02X\r\n"
+                                 "Weh     : 0x%02X\r\n"
+                                 "Tho     : 0x%02X\r\n"
+                                 "Thof    : 0x%02X\r\n"
+                                 "AGCgain : 0x%02X\r\n"
                                  "********************\r\n";
 #else
 static const char CONFIG_STR[] = "";
@@ -69,7 +69,7 @@ int AM4096::init()
     delay(30); // POWER-UP
     int attempts = 0;
     AM_LOG("Connection attempt ...\r\n");
-    while (readReg(AM4096_REGISTER_CONFIG_DATA_ADDR, &_configuration.data[0]))
+    while (!readReg(AM4096_REGISTER_CONFIG_DATA_ADDR, &_configuration.data[0]))
     {
         attempts += 1;
         AM_LOG("Attempt %d failed...\r\n",attempts);

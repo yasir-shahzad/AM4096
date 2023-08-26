@@ -14,7 +14,7 @@ AM4096_output_data outputData;
 
 void setup() {
     Serial.begin(9600);
-    Serial.println("Am4096 GetRPM Example");
+    Serial.println(F("AM4096 GetRPM Example"));
     Wire.begin();
     // Initialize the communication with the encoder
     encoder.init();
