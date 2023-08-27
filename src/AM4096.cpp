@@ -138,14 +138,12 @@ int AM4096::writeReg(uint8_t reg_addr, uint16_t * data)
     i2cPort->write(buffer, 3);
     if (i2cPort->endTransmission(true) != 0)
     {
-        return 0;
+        return 1;  //return with error
     }
 
-    // int status = i2cPort->write((int)_hw_addr<<1, (const char *)buffer, 3, false); // wait ~ 20ms after writing to
-    // EEPROM
     if (reg_addr < (AM4096_EEPROM_CONFIG_DATA_ADDR + AM4096_CONFIG_DATA_LEN))
-        delay(AM4096_EEPROM_WRITE_TIME + 2);
-    return 1;
+        delay(AM4096_EEPROM_WRITE_TIME);
+    return 0;
 } 
 
 int AM4096::findAM4096Device()
@@ -251,25 +249,44 @@ void AM4096::printAM4096OutputData(const AM4096_output_data * out_ptr)
     );
 }
 
-int AM4096::updateConfiguration(const AM4096_config_data * conf_ptr, bool permament)
+int AM4096::updateConfiguration(AM4096_config_data * conf_ptr, bool permament)
 {
+
+  const uint16_t default_settings[4] = {
+        0b1111111110000000,
+        0b1110000000000000,
+        0b1111111111111111,
+        0b1111100111111111
+    };
+
     assert(conf_ptr != NULL);
 
-    if(conf_ptr->fields.Addr != _configuration.fields.Addr)
+    if (conf_ptr->fields.Addr == 0)
+        conf_ptr->fields.Addr = _configuration.fields.Addr;
+    else if (conf_ptr->fields.Addr != _configuration.fields.Addr)
         return 1;
-    
+
     int status = 0;
     if(permament)
     {
         // check if already in memory
         for(int i=0;i<4;i++)
         {
-            if(_configuration.data[i] == conf_ptr->data[i])
+            Serial.print(String(i) + ":");
+            Serial.print(_configuration.data[i] & default_settings[i]);
+            Serial.print(":");
+            Serial.println(conf_ptr->data[i] & default_settings[i]);
+            if((_configuration.data[i] & default_settings[i]) == (conf_ptr->data[i] & default_settings[i])) {
                 status++;
+                Serial.println("Equal");}
         }
         if(status == 4)
         {
             AM_LOG("Configuration is identical to the one in the EEPROM!\r\n");
+            return 0;
+        }
+        else if(status == 3) {
+            AM_LOG("Configuration is identical\r\n");
             return 0;
         }
         status = 0;
@@ -286,6 +303,7 @@ int AM4096::updateConfiguration(const AM4096_config_data * conf_ptr, bool permam
         for (int i = 0; i < AM4096_CONFIG_DATA_LEN; i++)
             status += writeReg(AM4096_REGISTER_CONFIG_DATA_ADDR + i, buffer+i);
     }
+
     if(status!=AM4096_ERROR_NONE)
         return status;
     

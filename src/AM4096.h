@@ -181,7 +181,7 @@ class AM4096
          * @param permament if true device's EEPROM is update, otherwise only registers are udpate and configuration will be lost after power cycle
          * @return AM4096_ERROR_NONE if success, non zero value on failures  
          */
-        int updateConfiguration(const AM4096_config_data * conf_ptr, bool permament=false);
+        int updateConfiguration(AM4096_config_data * conf_ptr, bool permament=false);
         
         /**
          * @brief Read measurement data from device registers.

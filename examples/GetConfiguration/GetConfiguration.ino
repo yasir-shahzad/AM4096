@@ -3,7 +3,7 @@
  * @brief Example of using the AM4096 encoder to read configuration.
  */
 
-#define AM4096_LOGS false  // Define the logging macro here
+
 
 #include <Wire.h>
 #include <AM4096.h> // Include the header file
