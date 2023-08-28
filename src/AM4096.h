@@ -13,9 +13,12 @@
 #include <Arduino.h>
 #include <assert.h>
 #include <Wire.h>
-#include <LibPrintf.h>
 
 #define AM4096_LOGS true
+
+#if AM4096_LOGS
+#include <LibPrintf.h>
+#endif
 
 #define AM4096_MEMORY_WORD_LEN              2   ///< AM4096 memory word length in Bytes
 #define AM4096_EEPROM_CONFIG_DATA_ADDR      0   ///< address of first word of AM4096 configuration in EEPROM  
