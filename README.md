@@ -24,13 +24,6 @@ The AM4096 encoder is a 12-bit rotary magnetic encoder chip that offers accurate
    - For Windows: `Documents/Arduino/libraries`
    - For macOS: `~/Documents/Arduino/libraries`
 
-## Usage
-
-1. Include the library in your Arduino sketch:
-
-```cpp
-#include <AM4096.h>
-
 ## Documentation
 For more details on available methods and usage, refer to the library documentation.
 
