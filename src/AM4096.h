@@ -14,7 +14,7 @@
 #include <assert.h>
 #include <Wire.h>
 
-#define AM4096_LOGS true
+#define AM4096_LOGS false
 
 #if AM4096_LOGS
 #include <LibPrintf.h>
@@ -34,16 +34,16 @@
 #define AM4096_EEPROM_WRITE_TIME            20  ///< EEPROM write time in ms
 
 /**
- * @brief AM4096 configuration data structure.
+ * @brief Configuration data structure for the AM4096 encoder.
  *
- * More specific information about particular settings and the correct values you can
- * find in the product's datasheet: 
- * https://www.rls.si/en/fileuploader/download/download/?d=0&file=custom%2Fupload%2FAM4096D02_06_EN_data_sheet.pdf
- * or on product's webpage:
- * https://www.rls.si/en/am4096-12-bit-rotary-magnetic-encoder-chip
+ * This structure defines the configuration fields for the AM4096 encoder settings.
+ * For detailed information about specific settings and valid values, refer to the product's datasheet:
+ * Datasheet: https://www.rls.si/en/fileuploader/download/download/?d=0&file=custom%2Fupload%2FAM4096D02_06_EN_data_sheet.pdf
+ * Product Page: https://www.rls.si/en/am4096-12-bit-rotary-magnetic-encoder-chip
  * 
  * @sa AM4096_meas_fields
  */
+
 struct AM4096_config_fields
 {
     uint16_t Addr    : 7, ///< Device I2C address
@@ -73,13 +73,12 @@ struct AM4096_config_fields
 };
 
 /**
- * @brief AM4096 output data structure.
+ * @brief Output data structure for the AM4096 encoder.
  *
- * More specific information about particular settings and the correct values you can
- * find in the product's datasheet: 
- * https://www.rls.si/en/fileuploader/download/download/?d=0&file=custom%2Fupload%2FAM4096D02_06_EN_data_sheet.pdf
- * or on product's webpage:
- * https://www.rls.si/en/am4096-12-bit-rotary-magnetic-encoder-chip
+ * This structure defines the output data fields of the AM4096 encoder. For detailed information about specific fields
+ * and valid values, refer to the product's datasheet:
+ * Datasheet: https://www.rls.si/en/fileuploader/download/download/?d=0&file=custom%2Fupload%2FAM4096D02_06_EN_data_sheet.pdf
+ * Product Page: https://www.rls.si/en/am4096-12-bit-rotary-magnetic-encoder-chip
  * 
  * @sa AM4096_config_fields
  */
