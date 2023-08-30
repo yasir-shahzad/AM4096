@@ -1,4 +1,9 @@
 # AM4096 Encoder Arduino Library
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Installation instructions](https://www.ardu-badge.com/badge/SoftI2CMaster.svg?)](https://www.ardu-badge.com/SoftI2CMaster)
+[![Commits since latest](https://img.shields.io/github/commits-since/felias-fogg/SoftI2CMaster/latest)](https://github.com/felias-fogg/SoftI2CMaster/commits/master)
+[![Build Status](https://github.com/felias-fogg/SoftI2CMaster/workflows/LibraryBuild/badge.svg)](https://github.com/felias-fogg/SoftI2CMaster/actions)
+![Hit Counter](https://visitor-badge.laobi.icu/badge?page_id=felias-fogg_SoftI2CMaster)
 
 ![AM4096 Encoder](images/am4096.jpg)
 
