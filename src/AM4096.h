@@ -73,7 +73,7 @@ struct AM4096_config_fields
 };
 
 /**
- * @brief Output data structure for the AM4096 encoder.
+ * @brief Output data structure for the AM4096 encoder
  *
  * This structure defines the output data fields of the AM4096 encoder. For detailed information about specific fields
  * and valid values, refer to the product's datasheet:
