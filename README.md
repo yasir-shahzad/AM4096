@@ -1,8 +1,8 @@
 # AM4096 Encoder Arduino Library
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Installation instructions](https://www.ardu-badge.com/badge/AM4096.svg?)](https://www.ardu-badge.com/AM4096)
 [![Commits since latest](https://img.shields.io/github/commits-since/yasir-shahzad/AM4096/latest)](https://github.com/yasir-shahzad/AM4096/commits/master)
-[![Build Status](https://github.com/felias-fogg/SoftI2CMaster/workflows/LibraryBuild/badge.svg)](https://github.com/yasir-shahzad/AM4096/actions)
+[![Build Status](https://github.com/yasir-shahzad/AM4096/workflows/LibraryBuild/badge.svg)](https://github.com/yasir-shahzad/AM4096/actions)
 ![Hit Counter](https://visitor-badge.laobi.icu/badge?page_id=yasir-shahzad_AM4096)
 
 ![AM4096 Encoder](images/am4096.jpg)
