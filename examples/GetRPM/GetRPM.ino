@@ -7,7 +7,7 @@
 #include <AM4096.h>
 
 // Specify the I2C address of the AM4096 encoder
-const uint8_t DEVICE_ADDRESS = 0x5A;
+const uint8_t DEVICE_ADDRESS = 0x5B;
 
 // Create an instance of the AM4096 encoder class with the specified address
 AM4096 encoder(DEVICE_ADDRESS);
@@ -31,7 +31,7 @@ void loop() {
     int readStatus = encoder.readOutputDataRegisters(&outputData);
 
     // Check if the read was successful
-    if (readStatus == AM4096_ERROR_NONE) {
+    if (readStatus) {
         // Get the relative position (Rpos) field, which represents RPM
         uint16_t rpm = outputData.fields.Tho;
 
