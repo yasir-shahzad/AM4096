@@ -10,7 +10,7 @@
 #include "AM4096.h"
 
 #if AM4096_LOGS
-    #define AM_LOG(f_ , ...) printf((f_), ##__VA_ARGS__)
+    #define AM_LOG(fmt, ...)      SysLog(fmt, ##__VA_ARGS__)
 #else
     #define AM_LOG(f_ , ...) do {} while (0)
 #endif
@@ -54,6 +54,19 @@ static const char OUTPUT_STR[] = "*******OUTPUT*******\r\n"
 static const char CONFIG_STR[] = "";
 static const char OUTPUT_STR[] = "";
 #endif
+
+void SysLog(const char *fmt, ...)
+{
+    char vastr[SYSLOG_BUFFER_SIZE] = {0};
+
+    va_list ap;
+
+    // we have a syslog from a syslog call thus return as not much we can do...
+    va_start(ap, fmt);
+    vsnprintf(vastr, SYSLOG_BUFFER_SIZE, (char *)fmt, ap);
+    va_end(ap);
+    Serial.println(vastr);
+}
 
 AM4096::AM4096(uint8_t address, TwoWire &i2c_bus)
     : i2cPort(&i2c_bus), _hw_addr(address), _device_id(0), _initialised(false)
@@ -251,15 +264,8 @@ void AM4096::printAM4096OutputData(const AM4096_output_data * out_ptr)
 
 int AM4096::updateConfiguration(AM4096_config_data * conf_ptr, bool permament)
 {
-
-  const uint16_t default_settings[4] = {
-        0b1111111110000000,
-        0b1110000000000000,
-        0b1111111111111111,
-        0b1111100111111111
-    };
-
     assert(conf_ptr != NULL);
+    const uint16_t mask[4] = {0xFF80, 0xE000, 0xFFFF, 0xFCFF};
 
     if (conf_ptr->fields.Addr == 0)
         conf_ptr->fields.Addr = _configuration.fields.Addr;
@@ -272,21 +278,12 @@ int AM4096::updateConfiguration(AM4096_config_data * conf_ptr, bool permament)
         // check if already in memory
         for(int i=0;i<4;i++)
         {
-            Serial.print(String(i) + ":");
-            Serial.print(_configuration.data[i] & default_settings[i]);
-            Serial.print(":");
-            Serial.println(conf_ptr->data[i] & default_settings[i]);
-            if((_configuration.data[i] & default_settings[i]) == (conf_ptr->data[i] & default_settings[i])) {
+            if((_configuration.data[i] & mask[i]) == (conf_ptr->data[i] & mask[i])) 
                 status++;
-                Serial.println("Equal");}
         }
         if(status == 4)
         {
             AM_LOG("Configuration is identical to the one in the EEPROM!\r\n");
-            return 0;
-        }
-        else if(status == 3) {
-            AM_LOG("Configuration is identical\r\n");
             return 0;
         }
         status = 0;
